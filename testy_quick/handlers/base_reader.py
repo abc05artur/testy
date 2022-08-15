@@ -42,5 +42,5 @@ class BaseReader(ABC):
         return ans
 
     @abstractmethod
-    def read(self, file_name, var_name):
+    def read(self, complete_file_name, var_name):
         print("called BaseReader.read")
