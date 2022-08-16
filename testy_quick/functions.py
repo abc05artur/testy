@@ -2,9 +2,11 @@ import os
 
 import pandas as pd
 
-from .handlers import BaseReader
+from .handlers import BaseReader, BaseAnswer
 from .settings import BASE_DATA_FOLDER, INPUT_META_READER, INPUT_META_FILE_NAME, INPUT_META_FILE_COL, \
-    INPUT_META_VAR_COL, INPUT_META_READER_COL, INPUT_META_NAMED_COL
+    INPUT_META_VAR_COL, INPUT_META_READER_COL, INPUT_META_NAMED_COL, OUTPUT_META_READER, OUTPUT_META_VAR_COL, \
+    OUTPUT_META_READER_COL, OUTPUT_META_FILE_COL
+from .structures import TestyRunner
 
 
 def read_input(complete_file_path, var_name, reader_key):
@@ -15,7 +17,7 @@ def read_input(complete_file_path, var_name, reader_key):
     :param reader_key:
     :return:
     """
-    reader = BaseReader.get_reader(reader_key)
+    reader = BaseReader.get_handler(reader_key)
     ans = reader.read(complete_file_path, var_name)
     return ans
 
@@ -47,3 +49,25 @@ def _extract_inputs(case):
             args.append(input_datum)
 
     return args, kwargs
+
+
+def _extract_outputs(case):
+    folder = os.path.join(BASE_DATA_FOLDER, case)
+    reader_key = OUTPUT_META_READER[0]
+    output_meta_file = os.path.join(folder, OUTPUT_META_READER)
+    input_meta: pd.DataFrame = read_input(output_meta_file, OUTPUT_META_READER[1], reader_key)
+    ans = list()
+    for _, r in input_meta.iterrows():
+        var_name = r[OUTPUT_META_VAR_COL]
+        handler = BaseAnswer.get_handler(r[OUTPUT_META_READER_COL])
+        output_datum = handler.read(os.path.join(folder, r[OUTPUT_META_FILE_COL]), var_name)
+        ans.append((var_name, output_datum, handler))
+    return ans
+
+
+def create_test(fct_to_test, case, case_name) -> TestyRunner:
+    args, kwargs = _extract_inputs(case)
+    run_fct_c = lambda: fct_to_test(*args, **kwargs)
+    outputs = _extract_outputs(case)
+    ans = TestyRunner(run_function=run_fct_c, check_functions=outputs, case_name=case_name)
+    return ans
