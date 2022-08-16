@@ -5,7 +5,7 @@ import pandas as pd
 from .handlers import BaseReader, BaseAnswer
 from .settings import BASE_DATA_FOLDER, INPUT_META_READER, INPUT_META_FILE_NAME, INPUT_META_FILE_COL, \
     INPUT_META_VAR_COL, INPUT_META_READER_COL, INPUT_META_NAMED_COL, OUTPUT_META_READER, OUTPUT_META_VAR_COL, \
-    OUTPUT_META_READER_COL, OUTPUT_META_FILE_COL
+    OUTPUT_META_READER_COL, OUTPUT_META_FILE_COL, OUTPUT_META_FILE_NAME
 from .structures import TestyRunner
 
 
@@ -54,7 +54,7 @@ def _extract_inputs(case):
 def _extract_outputs(case):
     folder = os.path.join(BASE_DATA_FOLDER, case)
     reader_key = OUTPUT_META_READER[0]
-    output_meta_file = os.path.join(folder, OUTPUT_META_READER)
+    output_meta_file = os.path.join(folder, OUTPUT_META_FILE_NAME)
     input_meta: pd.DataFrame = read_input(output_meta_file, OUTPUT_META_READER[1], reader_key)
     ans = list()
     for _, r in input_meta.iterrows():

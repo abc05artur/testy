@@ -46,14 +46,20 @@ def create_tests_here(tests: Iterable[TestyRunner], module=None):
         module = inspect.getmodule(frm[0])
     module = module.__dict__
     for runner in tests:
-        test_class_dict = dict()
-        test_class_dict["setup_fct"] = lambda self: _setup(self, runner.function_to_run,
-                                                           [t[0] for t in runner.check_functions])
-        test_class_dict["test_0_run_function"] = lambda self: self.setup_fct()
-        for name, value, comparer in runner.check_functions:
-            f1 = lambda self, c=comparer, n=name, v=value: c.assert_same(v, self.answer[n], self)
-            f = partial(_compare, comparer=comparer, value=value, name=name)
-            # test_class_dict["test_"+name] = f #ToDo: figure out why this does not work
-            test_class_dict["test_" + name] = f1
-        cls = type(runner.case_name, (unittest.TestCase,), test_class_dict)
-        module[runner.case_name] = cls
+        _add_test(module, runner)
+
+
+def _add_test(module, runner):
+    if runner.case_name in module:
+        raise KeyError(f"{runner.case_name} already in module.")
+    test_class_dict = dict()
+    test_class_dict["setup_fct"] = lambda self: _setup(self, runner.function_to_run,
+                                                       [t[0] for t in runner.check_functions])
+    test_class_dict["test_0_run_function"] = lambda self: self.setup_fct()
+    for name, value, comparer in runner.check_functions:
+        f1 = lambda self, c=comparer, n=name, v=value: c.assert_same(v, self.answer[n], self)
+        f = partial(_compare, comparer=comparer, value=value, name=name)
+        # test_class_dict["test_"+name] = f #ToDo: figure out why this does not work
+        test_class_dict["test_" + name] = f1
+    cls = type(runner.case_name, (unittest.TestCase,), test_class_dict)
+    module[runner.case_name] = cls

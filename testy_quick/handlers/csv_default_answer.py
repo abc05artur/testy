@@ -1,5 +1,5 @@
-from . import CsvReader, DataframeDefaultComparer
+from . import CsvReader, DataframeDefaultComparer, BaseAnswer
 
 
-class CsvDefaultAnswer(CsvReader, DataframeDefaultComparer):
+class CsvDefaultAnswer(CsvReader, DataframeDefaultComparer,BaseAnswer):
     pass
