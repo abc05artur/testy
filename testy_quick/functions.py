@@ -2,10 +2,8 @@ import os
 
 import pandas as pd
 
+from . import settings
 from .handlers import BaseReader, BaseAnswer
-from .settings import BASE_DATA_FOLDER, INPUT_META_READER, INPUT_META_FILE_NAME, INPUT_META_FILE_COL, \
-    INPUT_META_VAR_COL, INPUT_META_READER_COL, INPUT_META_NAMED_COL, OUTPUT_META_READER, OUTPUT_META_VAR_COL, \
-    OUTPUT_META_READER_COL, OUTPUT_META_FILE_COL, OUTPUT_META_FILE_NAME
 from .structures import TestyRunner
 
 
@@ -29,21 +27,21 @@ def run_fct(f, case):
 
 
 def _extract_inputs(case):
-    folder = os.path.join(BASE_DATA_FOLDER, case)
-    reader_key = INPUT_META_READER[0]
-    input_meta_file = os.path.join(folder, INPUT_META_FILE_NAME)
-    input_meta: pd.DataFrame = read_input(input_meta_file, INPUT_META_READER[1], reader_key)
-    assert not input_meta[INPUT_META_VAR_COL].duplicated().any()
+    folder = os.path.join(settings.BASE_DATA_FOLDER, case)
+    reader_key = settings.INPUT_META_READER[0]
+    input_meta_file = os.path.join(folder, settings.INPUT_META_FILE_NAME)
+    input_meta: pd.DataFrame = read_input(input_meta_file, settings.INPUT_META_READER[1], reader_key)
+    assert not input_meta[settings.INPUT_META_VAR_COL].duplicated().any()
     args = list()
     kwargs = dict()
     for _, r in input_meta.iterrows():
-        var_name = r[INPUT_META_VAR_COL]
+        var_name = r[settings.INPUT_META_VAR_COL]
         input_datum = read_input(
-            complete_file_path=os.path.join(folder, r[INPUT_META_FILE_COL]),
+            complete_file_path=os.path.join(folder, r[settings.INPUT_META_FILE_COL]),
             var_name=var_name,
-            reader_key=r[INPUT_META_READER_COL]
+            reader_key=r[settings.INPUT_META_READER_COL]
         )
-        if r[INPUT_META_NAMED_COL]:
+        if r[settings.INPUT_META_NAMED_COL]:
             kwargs[var_name] = input_datum
         else:
             args.append(input_datum)
@@ -52,15 +50,15 @@ def _extract_inputs(case):
 
 
 def _extract_outputs(case):
-    folder = os.path.join(BASE_DATA_FOLDER, case)
-    reader_key = OUTPUT_META_READER[0]
-    output_meta_file = os.path.join(folder, OUTPUT_META_FILE_NAME)
-    input_meta: pd.DataFrame = read_input(output_meta_file, OUTPUT_META_READER[1], reader_key)
+    folder = os.path.join(settings.BASE_DATA_FOLDER, case)
+    reader_key = settings.OUTPUT_META_READER[0]
+    output_meta_file = os.path.join(folder, settings.OUTPUT_META_FILE_NAME)
+    input_meta: pd.DataFrame = read_input(output_meta_file, settings.OUTPUT_META_READER[1], reader_key)
     ans = list()
     for _, r in input_meta.iterrows():
-        var_name = r[OUTPUT_META_VAR_COL]
-        handler = BaseAnswer.get_handler(r[OUTPUT_META_READER_COL])
-        output_datum = handler.read(os.path.join(folder, r[OUTPUT_META_FILE_COL]), var_name)
+        var_name = r[settings.OUTPUT_META_VAR_COL]
+        handler = BaseAnswer.get_handler(r[settings.OUTPUT_META_READER_COL])
+        output_datum = handler.read(os.path.join(folder, r[settings.OUTPUT_META_FILE_COL]), var_name)
         ans.append((var_name, output_datum, handler))
     return ans
 
