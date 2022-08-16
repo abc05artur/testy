@@ -7,7 +7,8 @@ d={
     "v1":["ads","dfs","da"],
     "t2":(1,2,3,4),
     "d":{"k1":1,"k2":2},
-    "t":"this is a text."
+    "t":"this is a text.",
+    "n":None,
 }
 
 json.dump(d,open("j1.json","w"))

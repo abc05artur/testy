@@ -1,23 +1,23 @@
 import inspect
 import unittest
 from functools import partial
-from typing import Iterable, List
+from typing import Iterable, List, Dict
 
 from testy_quick.functions import create_test
 from testy_quick.structures import TestyRunner, TestyCase
 
 
 class SimpleTester():
-    def __init__(self, test_cases: Iterable[TestyCase]):
+    def __init__(self, test_cases: Dict[TestyCase]):
         self.test_cases = test_cases
 
     def create_tests(self) -> List[TestyRunner]:
-        ans = list()
+        ans = dict()
         for test_case in self.test_cases:
             for case_folder in test_case.cases:
                 case_name = test_case.name + "_" + case_folder
                 t = create_test(test_case.function, case_folder, case_name)
-                ans.append(t)
+                ans[case_name]=t
         return ans
 
 

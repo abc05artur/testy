@@ -7,8 +7,8 @@ from .csv_default_answer import CsvDefaultAnswer
 from .default_comparer import DefaultComparer
 from .json_reader import JsonReader
 from .default_json_answer import DefaultJsonAnswer
-from .indexed_dataframe_answer import CsvArgsReader
-from .indexed_dataframe_answer import DataframeIndexedComparer
+from .csv_args_reader import CsvArgsReader
+from .dataframe_indexed_comparer import DataframeIndexedComparer
 from .indexed_dataframe_answer import IndexedDataframeAnswer
 
 
