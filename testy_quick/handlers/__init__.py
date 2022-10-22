@@ -10,10 +10,11 @@ from .default_json_answer import DefaultJsonAnswer
 from .csv_args_reader import CsvArgsReader
 from .dataframe_indexed_comparer import DataframeIndexedComparer
 from .indexed_dataframe_answer import IndexedDataframeAnswer
-
+from .json_file_reader import JsonFileReader
 
 default_csv_answer = CsvDefaultAnswer(name="csv")
 default_csv_reader = default_csv_answer
-default_json_answer= DefaultJsonAnswer(name="json")
-default_json_reader= default_json_answer
+default_json_answer = DefaultJsonAnswer(name="json")
+default_json_reader = default_json_answer
 default_comparer = default_json_answer
+default_json_file_reader = JsonFileReader(name="json_file")

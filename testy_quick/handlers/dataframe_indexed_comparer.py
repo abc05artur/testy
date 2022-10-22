@@ -10,6 +10,6 @@ class DataframeIndexedComparer(BaseComparer):
         self.index_cols = index_cols
 
     def assert_same(self, expected, actual, test_case: unittest.TestCase):
-        expected_df = expected.set_index(self.index_cols)
-        actual_df = actual.set_index(self.index_cols)
+        expected_df = expected.set_index(self.index_cols).sort_index()
+        actual_df = actual.set_index(self.index_cols).sort_index()
         pd.testing.assert_frame_equal(expected_df, actual_df, check_dtype=False)

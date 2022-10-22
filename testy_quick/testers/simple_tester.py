@@ -8,10 +8,10 @@ from testy_quick.structures import TestyRunner, TestyCase
 
 
 class SimpleTester():
-    def __init__(self, test_cases: Dict[TestyCase]):
+    def __init__(self, test_cases: Iterable[TestyCase]):
         self.test_cases = test_cases
 
-    def create_tests(self) -> List[TestyRunner]:
+    def create_tests(self) -> Dict[str, TestyRunner]:
         ans = dict()
         for test_case in self.test_cases:
             for case_folder in test_case.cases:
