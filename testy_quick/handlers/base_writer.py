@@ -10,6 +10,22 @@ class BaseWriter(_Registered, ABC):
     metaclass to control writers.
     """
     @abstractmethod
+    def write(self,path:str, var_dict:Dict[str,Any])->None:
+        pass
+
+
+class BaseSingleWriter(BaseWriter, ABC):
+    @abstractmethod
+    def create_file_name(self,var_name)->str:
+        pass
+    @abstractmethod
+    def write(self,complete_file_name,var):
+        pass
+class BaseMultiWriter(BaseWriter,ABC):
+    @abstractmethod
+    def create_file_name(self)->str:
+        pass
+    @abstractmethod
     def write(self,complete_file_name:str, var_dict:Dict[str,Any])->None:
         pass
 

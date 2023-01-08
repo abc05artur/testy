@@ -45,7 +45,7 @@ if __name__=="__main__":
 
     #commit
     repo = Repo()
-    commit(repo, "c "+str(v), ["tests","testy_quick",'do_all.py', 'LICENSE', 'README.md', 'requirements.txt', 'setup.cfg', 'setup.py'])
+    commit(repo, "c "+str(v), ["docs","tests","testy_quick",'do_all.py', 'LICENSE', 'README.md', 'requirements.txt', 'setup.cfg', 'setup.py'])
 
     #build
     from setuptools import setup
