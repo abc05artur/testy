@@ -11,6 +11,7 @@ from .handlers import BaseReader, BaseAnswer
 from .handlers.base_writer import BaseWriter
 from .structures import TestyRunner
 
+def create_test_case():
 
 def read_input(complete_file_path, var_name, reader_key):
     """

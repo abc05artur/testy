@@ -1,44 +1,24 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple, Union, Callable, Any
 
-import pandas as pd
+from .base_handler import BaseHandler
+from .conditions import is_json
+from .json_handler import JsonSingleHandler
+from ..others import TestyError
+
+json_single_name = "default_json_single"
+
+registered_handlers: Dict[str, BaseHandler] = {
+    json_single_name: JsonSingleHandler()
+}
 
 
-class _Registered:
-    __registered: Dict[str, "_Registered"] = dict()
+def register_handler(handler_unique_name: str, handler_instance: BaseHandler) -> None:
+    # todo: docstring
+    if handler_unique_name in registered_handlers:
+        raise TestyError(f"handler named {handler_unique_name} already registered")
+    registered_handlers[handler_unique_name] = handler_instance
 
-    def __new__(cls, *args, **kwargs):
-        if "name" not in kwargs:
-            raise TypeError("Constructor of a registered object must have a keyword 'name' argument as registry key. "
-                            f"Solution: Modify the initializer function of {cls} and/or the call.")
-        name = kwargs["name"]
-        if not isinstance(name, str) or not name:
-            raise TypeError("Name must be a non-empty string.")
-        if name in cls.__registered:
-            raise KeyError(f"A reader with the name {name} already exists. "
-                           f"Use a different name form {cls.available_handlers()}. "
-                           f"FYI: {cls.handlers_df()}")
-        x = super().__new__(cls)
-        cls.__registered[name] = x
-        return x
 
-    @classmethod
-    def get_handler(cls, name: str) -> "_Registered":
-        if name not in cls.__registered:
-            raise KeyError(
-                f"No handler named {name}. Available handlers: {cls.available_handlers()}. Call {cls}.handlers_df() for full info.")
-        ans = cls.__registered[name]
-        if not isinstance(ans, cls):
-            raise TypeError(f"Handler {name} is of type {ans.__class__}, not {cls}")
-        return ans
-
-    @classmethod
-    def available_handlers(cls) -> List[str]:
-        return list(cls.__registered.keys())
-
-    @classmethod
-    def handlers_df(cls):
-        ans = pd.DataFrame(columns=["name", "class", "object", "description"])
-        for n, o in cls.__registered.items():
-            d = {"name": n, "class": str(o.__class__), "object": str(o), "description": o.__doc__}
-            ans = ans.append(d, ignore_index=True)
-        return ans
+default_order: List[Tuple[Union[type, Callable[[Any], bool]], str]] = [
+    (is_json, json_single_name),
+]
