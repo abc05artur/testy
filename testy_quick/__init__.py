@@ -1,6 +1,4 @@
-from . import handlers
-from . import testers
-from .functions import run_fct, read_input
-from .structures import TestyCase
+from .end_functions import create_test_case, set_main_folder,register_handler
+from .handlers import SingleHandler
 
-__version__ = "0.0.31"
+__version__ = "0.0.0"
