@@ -126,7 +126,7 @@ class JsonMultiHandler(MultiHandler):
 
 class ExceptionHandler(SingleHandler):
 
-    def exception_to_dict(self, e: Exception):
+    def exception_to_dict(self, e: BaseException):
         ans = dict()
         ans["type"] = str(type(e))
         ans["args"] = e.args
