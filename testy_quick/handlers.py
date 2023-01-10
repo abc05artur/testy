@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, Any, Union, List, Tuple, Callable, Iterable
 
-from testy_quick.low_level import TestyError, is_json
-from testy_quick.strings import default_testy_json_single, default_exception_handler
+from testy_quick.low_level import TestyError, is_json, is_json_short
+from testy_quick.strings import default_testy_json_single, default_exception_handler, default_testy_json_multi
 
 
 class BaseHandler(ABC):
@@ -52,13 +52,37 @@ class SingleHandler(BaseHandler):
 
 class MultiHandler(BaseHandler):
     @abstractmethod
-    def user_def_write(self, var_dict: Dict[str, Any], folder_path: Union[Path, str]) -> None:
+    def user_def_write(self, var_dict: Dict[str, Any], folder_path: Path) -> None:
         pass
 
     @abstractmethod
-    def user_def_read(self, folder_path: str) -> Dict[str, Any]:
+    def user_def_read(self, folder_path: Path) -> Dict[str, Any]:
         pass
+    def write(self, var_dict: Dict[str, Any], folder_path: Path) -> None:
+        try:
+            self.user_def_write(var_dict,folder_path)
+        except Exception as e:
+            raise TestyError(f"Multi writing failed for vars {var_dict.keys()}.") from e
 
+
+    def read(self, var_names: Iterable[str], folder_path: Path) -> Dict[str, Any]:
+        var_names=list(var_names)
+        if len(var_names)==0:
+            return dict()
+        try:
+            var_dict=self.user_def_read(folder_path)
+        except Exception as e:
+            raise TestyError(f"Multi reading from {folder_path} failed for vars {var_names}.") from e
+        ans_d=dict()
+        not_found=list()
+        for var_name in var_names:
+            if var_name in var_dict:
+                ans_d[var_name]=var_dict[var_name]
+            else:
+                not_found.append(var_name)
+        if len(not_found)>0:
+            raise TestyError(f"Multi reading from {folder_path} din not find vars {not_found}.")
+        return ans_d
 
 class JsonSingleHandler(SingleHandler):
 
@@ -76,6 +100,24 @@ class JsonSingleHandler(SingleHandler):
     def user_def_write(self, var_name: str, var_value: Any, folder_path: Path) -> None:
         with open(folder_path / (var_name + ".json"), "w") as f:
             json.dump(var_value, f, indent=2)
+
+class JsonMultiHandler(MultiHandler):
+    file_name="default_json_muti.json"
+
+    def user_def_read(self, folder_path: Path) -> Dict[str, Any]:
+        with open(folder_path/self.file_name,"r") as f:
+            ans_d=json.load(f)
+        return ans_d
+
+    def user_def_write(self, var_dict: Dict[str, Any], folder_path: Path) -> None:
+        with open(folder_path / self.file_name, "w") as f:
+            json.dump(var_dict,f,indent=2)
+
+    def write_report(self, expected_answer: Any, actual_answer: Any, folder_path: Path, var_name) -> None:
+        raise NotImplementedError()
+
+    def is_same(self, expected_answer: Any, actual_answer: Any) -> bool:
+        raise NotImplementedError()
 
 
 class ExceptionHandler(SingleHandler):
@@ -122,8 +164,10 @@ class ExceptionHandler(SingleHandler):
 
 handlers: Dict[str, BaseHandler] = {
     default_testy_json_single: JsonSingleHandler(),
+    default_testy_json_multi:JsonMultiHandler(),
     default_exception_handler: ExceptionHandler(),
 }
 default_order: List[Tuple[Union[type, Callable[[Any], bool]], str]] = [
-    (is_json, default_testy_json_single)
+    (is_json_short, default_testy_json_multi),
+    (is_json, default_testy_json_single),
 ]

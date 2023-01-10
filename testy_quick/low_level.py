@@ -13,3 +13,9 @@ def is_json(var_value: Any) -> bool:
         return True
     except:
         return False
+def is_json_short(var_value: Any) -> bool:
+    try:
+        s=json.dumps(var_value)
+        return len(s)<=500
+    except:
+        return False
