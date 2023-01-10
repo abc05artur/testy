@@ -16,7 +16,6 @@ class Person:
 
     @create_test_case("t2", True, [("self", "person_handler")])
     def get_full_name(self) -> str:
-
         return f"{self.name} {self.surname}"
 
 
@@ -32,7 +31,7 @@ class PersonHandler(SingleHandler):
 
     def user_def_write(self, var_name: str, var_value: Any, folder_path: Path) -> None:
         d = {"name": var_value.name, "surname": var_value.surname}
-        with open(folder_path / (var_name + ".json"),"w") as f:
+        with open(folder_path / (var_name + ".json"), "w") as f:
             json.dump(d, f, indent=2)
 
 
@@ -40,5 +39,5 @@ register_handler("person_handler", PersonHandler())
 
 if __name__ == "__main__":
     p = Person("James", "Brown")
-    s= p.get_full_name("dfs")
+    s = p.get_full_name("dfs")
     print(s)

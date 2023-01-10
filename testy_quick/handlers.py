@@ -15,12 +15,13 @@ class BaseHandler(ABC):
     @abstractmethod
     def read(self, var_names: Iterable[str], folder_path: Path) -> Dict[str, Any]:
         pass
+
     @abstractmethod
     def is_same(self, expected_answer: Any, actual_answer: Any) -> bool:
         pass
 
     @abstractmethod
-    def write_report(self, expected_answer: Any, actual_answer: Any, folder_path: Path, var_name:str) -> None:
+    def write_report(self, expected_answer: Any, actual_answer: Any, folder_path: Path, var_name: str) -> None:
         pass
 
 
@@ -39,14 +40,15 @@ class SingleHandler(BaseHandler):
                 self.user_def_write(var_name=var_name, var_value=var_value, folder_path=folder_path)
             except Exception as e:
                 raise TestyError(f"Failed to write {var_name}") from e
+
     def read(self, var_names: Iterable[str], folder_path: Path) -> Dict[str, Any]:
-        answer=dict()
+        answer = dict()
         for var_name in var_names:
             try:
-                var_value=self.user_def_read(var_name,folder_path)
+                var_value = self.user_def_read(var_name, folder_path)
             except Exception as e:
                 raise TestyError(f"Failed to read {var_name}") from e
-            answer[var_name]=var_value
+            answer[var_name] = var_value
         return answer
 
 
@@ -58,31 +60,32 @@ class MultiHandler(BaseHandler):
     @abstractmethod
     def user_def_read(self, folder_path: Path) -> Dict[str, Any]:
         pass
+
     def write(self, var_dict: Dict[str, Any], folder_path: Path) -> None:
         try:
-            self.user_def_write(var_dict,folder_path)
+            self.user_def_write(var_dict, folder_path)
         except Exception as e:
             raise TestyError(f"Multi writing failed for vars {var_dict.keys()}.") from e
 
-
     def read(self, var_names: Iterable[str], folder_path: Path) -> Dict[str, Any]:
-        var_names=list(var_names)
-        if len(var_names)==0:
+        var_names = list(var_names)
+        if len(var_names) == 0:
             return dict()
         try:
-            var_dict=self.user_def_read(folder_path)
+            var_dict = self.user_def_read(folder_path)
         except Exception as e:
             raise TestyError(f"Multi reading from {folder_path} failed for vars {var_names}.") from e
-        ans_d=dict()
-        not_found=list()
+        ans_d = dict()
+        not_found = list()
         for var_name in var_names:
             if var_name in var_dict:
-                ans_d[var_name]=var_dict[var_name]
+                ans_d[var_name] = var_dict[var_name]
             else:
                 not_found.append(var_name)
-        if len(not_found)>0:
+        if len(not_found) > 0:
             raise TestyError(f"Multi reading from {folder_path} din not find vars {not_found}.")
         return ans_d
+
 
 class JsonSingleHandler(SingleHandler):
 
@@ -94,24 +97,25 @@ class JsonSingleHandler(SingleHandler):
 
     def user_def_read(self, var_name: str, folder_path: Path) -> Any:
         with open(folder_path / (var_name + ".json"), "r") as f:
-            var_value=json.load(f)
+            var_value = json.load(f)
         return var_value
 
     def user_def_write(self, var_name: str, var_value: Any, folder_path: Path) -> None:
         with open(folder_path / (var_name + ".json"), "w") as f:
             json.dump(var_value, f, indent=2)
 
+
 class JsonMultiHandler(MultiHandler):
-    file_name="default_json_muti.json"
+    file_name = "default_json_muti.json"
 
     def user_def_read(self, folder_path: Path) -> Dict[str, Any]:
-        with open(folder_path/self.file_name,"r") as f:
-            ans_d=json.load(f)
+        with open(folder_path / self.file_name, "r") as f:
+            ans_d = json.load(f)
         return ans_d
 
     def user_def_write(self, var_dict: Dict[str, Any], folder_path: Path) -> None:
         with open(folder_path / self.file_name, "w") as f:
-            json.dump(var_dict,f,indent=2)
+            json.dump(var_dict, f, indent=2)
 
     def write_report(self, expected_answer: Any, actual_answer: Any, folder_path: Path, var_name) -> None:
         raise NotImplementedError()
@@ -122,12 +126,12 @@ class JsonMultiHandler(MultiHandler):
 
 class ExceptionHandler(SingleHandler):
 
-    def exception_to_dict(self,e:Exception):
-        ans=dict()
-        ans["type"]=str(type(e))
-        ans["args"]=e.args
+    def exception_to_dict(self, e: Exception):
+        ans = dict()
+        ans["type"] = str(type(e))
+        ans["args"] = e.args
         if e.__cause__ is not None:
-            ans["inner"]=self.exception_to_dict(e.__cause__)
+            ans["inner"] = self.exception_to_dict(e.__cause__)
         return ans
 
     def write_report(self, expected_answer: Any, actual_answer: Any, folder_path: Path, var_name) -> None:
@@ -148,23 +152,23 @@ class ExceptionHandler(SingleHandler):
         if isinstance(actual_answer, Exception):
             actual_answer = self.exception_to_dict(actual_answer)
         actual_answer = json.dumps(actual_answer, indent=2)
-        return actual_answer==expected_answer
+        return actual_answer == expected_answer
 
     def user_def_read(self, var_name: str, folder_path: Path) -> Any:
         with open(folder_path / (var_name + ".json"), "r") as f:
-            var_value=json.load(f)
+            var_value = json.load(f)
         return var_value
 
     def user_def_write(self, var_name: str, var_value: Any, folder_path: Path) -> None:
-        if isinstance(var_value,Exception):
-            var_value=self.exception_to_dict(var_value)
+        if isinstance(var_value, Exception):
+            var_value = self.exception_to_dict(var_value)
         with open(folder_path / (var_name + ".json"), "w") as f:
             json.dump(var_value, f, indent=2)
 
 
 handlers: Dict[str, BaseHandler] = {
     default_testy_json_single: JsonSingleHandler(),
-    default_testy_json_multi:JsonMultiHandler(),
+    default_testy_json_multi: JsonMultiHandler(),
     default_exception_handler: ExceptionHandler(),
 }
 default_order: List[Tuple[Union[type, Callable[[Any], bool]], str]] = [
