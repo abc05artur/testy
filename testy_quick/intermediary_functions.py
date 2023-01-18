@@ -10,17 +10,19 @@ from testy_quick.strings import str_main_folder, str_case_folder, case_folder_pa
 
 
 def get_case_name(case_name_completed: Union[str, Path], multiple_calls: bool) -> Path:
+    test_exists_function = get_test_exists_function()
     if multiple_calls:
         i = 0
         case_path = user_options[str_main_folder] / case_name_completed / user_options[str_case_folder].format(
             **{case_folder_parameter_name: i})
-        while case_path.exists():
+
+        while test_exists_function(case_path):
             i += 1
             case_path = user_options[str_main_folder] / case_name_completed / user_options[str_case_folder].format(
                 **{case_folder_parameter_name: i})
     else:
         case_path = user_options[str_main_folder] / case_name_completed
-        if case_path.exists():
+        if test_exists_function(case_path):
             raise TestyError(f"test case {case_path} already exists")
     return case_path
 
@@ -311,3 +313,13 @@ def read_multi_outputs(
         for k, nb in args_d.items():
             args[nb] = values_d[k]
     return tuple(args)
+
+
+def _test_exists(test_path: Path) -> bool:
+    return test_path.is_dir()
+
+
+def get_test_exists_function() -> Callable[[Path], bool]:
+    # todo: option for user to set
+    # todo: wrapper
+    return _test_exists

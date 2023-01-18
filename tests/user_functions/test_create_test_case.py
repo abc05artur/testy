@@ -1,5 +1,6 @@
 from tests.tools import temp_data_path, delete_f
 from testy_quick.end_functions import create_test_case, run_test_case
+from testy_quick.intermediary_functions import get_test_exists_function
 from testy_quick.strings import str_main_folder
 from testy_quick.user_string import user_set_option
 
@@ -14,5 +15,5 @@ def f(x, y):
 def test_create_test_case():
     delete_f(temp_data_path)
     f(4, 5)
-    # todo: some checks
+    assert get_test_exists_function()(temp_data_path / "my_first_test")
     delete_f(temp_data_path)

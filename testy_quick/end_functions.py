@@ -7,7 +7,7 @@ import logging
 from testy_quick.check_metadata import get_input_metadata_errors
 from testy_quick.variable_handlers.to_expose import get_handler
 from testy_quick.intermediary_functions import get_case_name, get_inputs_metadata, \
-    get_outputs_metadata, write_outputs, read_inputs, read_vars, compare_vars, write_vars
+    get_outputs_metadata, write_outputs, read_inputs, read_vars, compare_vars, write_vars, get_test_exists_function
 from testy_quick.low_level import TestyError, get_arg_names, get_args_dict, is_ok, split_args
 from testy_quick.strings import str_main_folder, str_case_folder, case_folder_parameter_name, \
     inputs_path_key, inputs_metadata_str, metadata_writer_key, test_case_metadata_key, fct_name_str, exec_time_str, \
@@ -44,11 +44,11 @@ def create_test_case(
 
 ) -> Callable[[Callable], Callable]:
     def decorator(fun):
-        case_path = get_case_name(test_case, allow_multiple)
 
         # case_path.mkdir(parents=True, exist_ok=False)
 
         def wrapper(*args, **kwargs):
+            case_path = get_case_name(test_case, allow_multiple)
             metadata_dict = {fct_name_str: fun.__name__}
             arg_names = get_arg_names(len(args), fun)
             input_var_d = get_args_dict(args, kwargs, arg_names)
@@ -111,6 +111,8 @@ def run_test_case(fct, case: Union[str, Path], logger: Union[logging.Logger, Non
     if logger is None:
         logger = logging.getLogger()
     folder_path = Path(user_options[str_main_folder]) / case
+
+    assert get_test_exists_function()(folder_path)
 
     logger.debug("reading test metadata")
     try:
