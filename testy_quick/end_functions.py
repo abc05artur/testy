@@ -7,7 +7,7 @@ import logging
 from testy_quick.check_metadata import get_input_metadata_errors
 from testy_quick.variable_handlers.to_expose import get_handler
 from testy_quick.intermediary_functions import get_case_name, get_inputs_metadata, \
-    get_outputs_metadata, write_outputs, read_inputs, read_vars, compare_vars, write_vars, get_test_exists_function
+    get_outputs_metadata, read_vars, compare_vars, write_vars, get_test_exists_function
 from testy_quick.low_level import TestyError, get_arg_names, get_args_dict, is_ok, split_args
 from testy_quick.strings import str_main_folder, str_case_folder, case_folder_parameter_name, \
     inputs_path_key, inputs_metadata_str, metadata_writer_key, test_case_metadata_key, fct_name_str, exec_time_str, \
@@ -84,7 +84,10 @@ def create_test_case(
                         metadata_dict[has_multiple_outputs] = False
                     answer_metadata = get_outputs_metadata(ans_list, output_rules)
                     metadata_dict[results_in_json] = answer_metadata
-                    write_outputs(case_path / user_options[result_folder_key], ans_list, answer_metadata)
+                    answer_names = [d[var_name_field_in_metadata] for d in answer_metadata]
+                    answer_d = get_args_dict(ans_list, {}, answer_names)
+                    write_vars(case_path / user_options[result_folder_key], answer_metadata, answer_d)
+                    # write_outputs(case_path / user_options[result_folder_key], ans_list, answer_metadata)
             else:
                 exception_handler = get_handler(user_options[exception_handler_key])
                 result_path = case_path / user_options[result_folder_key]
@@ -155,6 +158,8 @@ def run_test_case(fct, case: Union[str, Path], logger: Union[logging.Logger, Non
         logger.debug("executing failed")
     run_time = time.time() - start_time
 
+    logger.debug("comparing inputs after execution")
+
     if test_json_dict[save_inputs_after_execution_str]:
         inputs_d_expected = read_vars(folder_path / user_options[save_inputs_after_execution_key],
                                       test_json_dict[inputs_metadata_str])
@@ -169,7 +174,7 @@ def run_test_case(fct, case: Union[str, Path], logger: Union[logging.Logger, Non
         ans = [ans]
     assert len(ans) == len(test_json_dict[results_in_json])
     ans = dict(zip([d[var_name_field_in_metadata] for d in test_json_dict[results_in_json]], ans))
-    run_path = user_options[str_run_folder_key]
+    run_path = user_options[str_run_folder_key] / case
     write_vars(run_path / ans_expected / user_options[inputs_path_key], test_json_dict[inputs_metadata_str],
                inputs_d_expected)
     write_vars(run_path / ans_actual / user_options[inputs_path_key], test_json_dict[inputs_metadata_str],

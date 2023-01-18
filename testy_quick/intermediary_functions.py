@@ -162,32 +162,32 @@ def get_outputs_metadata(
 #             raise TestyError(f"Failed to write vars {var_d.keys()} with handler {handler_name}") from e
 #
 
-def write_outputs(
-        path: Path,
-        ans_list: List[Any],
-        outputs_json_dict: List[Dict[str, Union[str, bool]]],
-) -> None:
-    grouped_by_handlers: Dict[str, Dict[str, Any]] = dict()
-    for var_value, var_d in zip(ans_list, outputs_json_dict):
-        handler_name = var_d[handler_name_str]
-        var_name = var_d[var_name_field_in_metadata]
-        if handler_name in grouped_by_handlers:
-            handler_d = grouped_by_handlers[handler_name]
-            if var_name in handler_d:
-                raise TestyError(f"variable {var_name} already associated to {handler_name} handler.")
-            handler_d[var_name] = var_value
-        else:
-            grouped_by_handlers[handler_name] = {
-                var_name: var_value
-            }
-
-    # path.mkdir(parents=True, exist_ok=False)
-    for handler_name, var_d in grouped_by_handlers.items():
-        handler = get_handler(handler_name)
-        try:
-            handler.write(var_d, path)
-        except Exception as e:
-            raise TestyError(f"Failed to write vars {var_d.keys()} with handler {handler_name}") from e
+# def write_outputs(
+#         path: Path,
+#         ans_list: List[Any],
+#         outputs_json_dict: List[Dict[str, Union[str, bool]]],
+# ) -> None:
+#     grouped_by_handlers: Dict[str, Dict[str, Any]] = dict()
+#     for var_value, var_d in zip(ans_list, outputs_json_dict):
+#         handler_name = var_d[handler_name_str]
+#         var_name = var_d[var_name_field_in_metadata]
+#         if handler_name in grouped_by_handlers:
+#             handler_d = grouped_by_handlers[handler_name]
+#             if var_name in handler_d:
+#                 raise TestyError(f"variable {var_name} already associated to {handler_name} handler.")
+#             handler_d[var_name] = var_value
+#         else:
+#             grouped_by_handlers[handler_name] = {
+#                 var_name: var_value
+#             }
+#
+#     # path.mkdir(parents=True, exist_ok=False)
+#     for handler_name, var_d in grouped_by_handlers.items():
+#         handler = get_handler(handler_name)
+#         try:
+#             handler.write(var_d, path)
+#         except Exception as e:
+#             raise TestyError(f"Failed to write vars {var_d.keys()} with handler {handler_name}") from e
 
 
 def read_vars(
@@ -253,32 +253,32 @@ def _get_handler_grouping(vars_json_dict: Iterable[Dict[str, Any]]) -> Dict[str,
     return handler_grouping
 
 
-def read_inputs(
-        path: Path,
-        inputs_json_dict: List[Dict[str, Union[str, bool]]]
-) -> Tuple[Tuple[Any], Dict[str, Any]]:  # todo:replace with read_vars
-    nb_args = 0
-    handler_grouping: Dict[str, Tuple[Dict[str, int], List[str]]] = dict()
-    for input_d in inputs_json_dict:
-        handler_name = input_d[handler_name_str]
-        if handler_name not in handler_grouping:
-            handler_grouping[handler_name] = (dict(), list())
-        var_name = input_d[var_name_field_in_metadata]
-        if input_d[is_named_in_json]:
-            handler_grouping[handler_name][1].append(var_name)
-        else:
-            handler_grouping[handler_name][0][var_name] = nb_args
-            nb_args += 1
-    args: List[Any] = [None] * nb_args
-    kwargs = dict()
-    for handler_name, (args_d, args_l) in handler_grouping.items():
-        handler = get_handler(handler_name)
-        values_d = handler.read(list(args_d.keys()) + args_l, path)
-        for k, nb in args_d.items():
-            args[nb] = values_d[k]
-        for k in args_l:
-            kwargs[k] = values_d[k]
-    return tuple(args), kwargs
+# def read_inputs(
+#         path: Path,
+#         inputs_json_dict: List[Dict[str, Union[str, bool]]]
+# ) -> Tuple[Tuple[Any], Dict[str, Any]]:  # todo:replace with read_vars
+#     nb_args = 0
+#     handler_grouping: Dict[str, Tuple[Dict[str, int], List[str]]] = dict()
+#     for input_d in inputs_json_dict:
+#         handler_name = input_d[handler_name_str]
+#         if handler_name not in handler_grouping:
+#             handler_grouping[handler_name] = (dict(), list())
+#         var_name = input_d[var_name_field_in_metadata]
+#         if input_d[is_named_in_json]:
+#             handler_grouping[handler_name][1].append(var_name)
+#         else:
+#             handler_grouping[handler_name][0][var_name] = nb_args
+#             nb_args += 1
+#     args: List[Any] = [None] * nb_args
+#     kwargs = dict()
+#     for handler_name, (args_d, args_l) in handler_grouping.items():
+#         handler = get_handler(handler_name)
+#         values_d = handler.read(list(args_d.keys()) + args_l, path)
+#         for k, nb in args_d.items():
+#             args[nb] = values_d[k]
+#         for k in args_l:
+#             kwargs[k] = values_d[k]
+#     return tuple(args), kwargs
 
 
 def read_single_var(
@@ -291,28 +291,28 @@ def read_single_var(
     return var_value
 
 
-def read_multi_outputs(
-        path: Path,
-        inputs_json_dict: List[Dict[str, Union[str, bool]]],
-) -> Tuple[Any]:
-    nb_args = 0
-    handler_grouping: Dict[str, Dict[str, int]] = dict()
-    for input_d in inputs_json_dict:
-        handler_name = input_d[handler_name_str]
-        if handler_name not in handler_grouping:
-            handler_grouping[handler_name] = dict()
-        var_name = input_d[var_name_field_in_metadata]
-
-        handler_grouping[handler_name][var_name] = nb_args
-        nb_args += 1
-    args: List[Any] = [None] * nb_args
-
-    for handler_name, args_d in handler_grouping.items():
-        handler = get_handler(handler_name)
-        values_d = handler.read(args_d.keys(), path)
-        for k, nb in args_d.items():
-            args[nb] = values_d[k]
-    return tuple(args)
+# def read_multi_outputs(
+#         path: Path,
+#         inputs_json_dict: List[Dict[str, Union[str, bool]]],
+# ) -> Tuple[Any]:
+#     nb_args = 0
+#     handler_grouping: Dict[str, Dict[str, int]] = dict()
+#     for input_d in inputs_json_dict:
+#         handler_name = input_d[handler_name_str]
+#         if handler_name not in handler_grouping:
+#             handler_grouping[handler_name] = dict()
+#         var_name = input_d[var_name_field_in_metadata]
+#
+#         handler_grouping[handler_name][var_name] = nb_args
+#         nb_args += 1
+#     args: List[Any] = [None] * nb_args
+#
+#     for handler_name, args_d in handler_grouping.items():
+#         handler = get_handler(handler_name)
+#         values_d = handler.read(args_d.keys(), path)
+#         for k, nb in args_d.items():
+#             args[nb] = values_d[k]
+#     return tuple(args)
 
 
 def _test_exists(test_path: Path) -> bool:
