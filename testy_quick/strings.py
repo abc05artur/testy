@@ -7,7 +7,7 @@ str_case_folder = "case_folder"
 case_unnamed_parametr_name = "number"
 str_unnnamed_args = "unnamed_args"
 
-input_name_in_json = "name"
+var_name_field_in_metadata = "name"
 is_named_in_json = "is_kwarg"
 handler_name_str = "handler_name"
 is_user_defined_str = "found_in_user_conditions"
@@ -18,8 +18,10 @@ inputs_path_key = "inputs_path"
 inputs_metadata_str = "inputs"
 default_testy_json_single = "default_testy_json_single"
 default_testy_json_multi = "default_testy_json_multi"
+default_dataframe = "default_testy_dataframe"
 test_case_metadata_key = "test_case_metadata_key"
 fct_name_str = "fct_name"
+# is_method_string = "is_method"
 exec_time_str = "execution_time"
 save_inputs_after_execution_str = "save_inputs_after_execution"
 save_inputs_after_execution_key = "inputs_after_execution_folder"
@@ -31,7 +33,17 @@ exception_var_name = "exception"
 results_in_json = "result"
 result_nb_param = "result_nb"
 result_var_name_key = "result_name"
+str_run_folder_key = "run_folder"
+has_multiple_outputs = "has_multiple_outputs"
 
+reason_var_name = "var_name"
+reason_var_type = "var_type"
+reason_var_fct = "var_fct"
+
+ans_success = "success"
+ans_execution_time = "execution_time"
+ans_actual = "actual"
+ans_expected = "expected"
 user_options: Dict[str, Union[str, Path]] = {
     str_main_folder: Path("tests_testy"),
     str_case_folder: "case_{" + case_folder_parameter_name + "}",
@@ -43,9 +55,6 @@ user_options: Dict[str, Union[str, Path]] = {
     exception_handler_key: default_exception_handler,
     result_folder_key: "result",
     result_var_name_key: "result_{" + result_nb_param + "}",
+    str_run_folder_key: Path("test_runs"),
 
 }
-
-reason_var_name = "var_name"
-reason_var_type = "var_type"
-reason_var_fct = "var_fct"
