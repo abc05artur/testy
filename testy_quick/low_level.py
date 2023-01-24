@@ -57,9 +57,9 @@ def split_args(vars_data: Dict[str, Any], vars_json_dict: List[Dict[str, Any]]) 
     kwargs = dict()
     for var_d in vars_json_dict:
         if var_d[is_named_in_json]:
-            args.append(vars_data[var_d[var_name_field_in_metadata]])
-        else:
             kwargs[var_d[var_name_field_in_metadata]] = vars_data[var_d[var_name_field_in_metadata]]
+        else:
+            args.append(vars_data[var_d[var_name_field_in_metadata]])
     return tuple(args), kwargs
 
 
@@ -72,9 +72,10 @@ def split_method_args(vars_data: Dict[str, Any], vars_json_dict: List[Dict[str, 
     fct = getattr(p, method_name)
     for var_d in vars_json_dict[1:]:
         if var_d[is_named_in_json]:
-            args.append(vars_data[var_d[var_name_field_in_metadata]])
+            kwargs[var_d[var_name_field_in_metadata]] = vars_data[var_d[var_name_field_in_metadata]]
         else:
             kwargs[var_d[var_name_field_in_metadata]] = vars_data[var_d[var_name_field_in_metadata]]
+            args.append(vars_data[var_d[var_name_field_in_metadata]])
     return fct, tuple(args), kwargs
 
 
