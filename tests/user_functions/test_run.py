@@ -2,22 +2,23 @@ import json
 from pathlib import Path
 from typing import Any
 
-from tests.tools import temp_data_path, delete_f, reset_all
-from testy_quick.end_functions import create_test_case, run_test_case
-from testy_quick.strings import str_main_folder
-from testy_quick.user_string import user_set_option, get_test_exists_function
+from tests.tools import temp_data_path, temp_run_path, reset_run
+from testy_quick.end_functions import create_tests_here
+from testy_quick.strings import str_main_folder, str_run_folder_key
+from testy_quick.user_string import user_set_option
 from testy_quick.variable_handlers import SingleHandler, register_handler
 
 user_set_option(str_main_folder, str(temp_data_path))
+user_set_option(str_run_folder_key, str(temp_run_path))
 
 
-@create_test_case("sum", allow_multiple=True)
 def sum(x, y):
-    return x + y
+    print("sum")
+    return x + y + 1
 
 
-@create_test_case("sum_diff", allow_multiple=True, treat_tuple_as_multiple_output=True)
 def sum_diff(x, y):
+    print("sum_diff")
     return x + y, x - y
 
 
@@ -26,11 +27,9 @@ class Person:
         self.name = name
         self.surname = surname
 
-    @create_test_case("get_full_name", False, [("self", "person_handler")])
     def get_full_name(self) -> str:
         return f"{self.name} {self.surname}"
 
-    @create_test_case("set_name", False, [("self", "person_handler")])
     def set_name(self, name) -> str:
         self.name = name
 
@@ -52,21 +51,14 @@ class PersonHandler(SingleHandler):
 
 
 register_handler("person_handler", PersonHandler())
+reset_run()
+create_tests_here(
+    [
+        (sum, ["sum/case_1", "sum/case_0", "sum/case_2", ]),
+        (sum_diff, ["sum_diff/case_0", "sum_diff/case_1"]),
+    ],
+    # ["get_full_name", "set_name"],
+)
 
-
-def test_create_test_case():
-    reset_all()
-    sum(5, 9)
-    try:
-        sum("hello", 3)
-    except:
-        pass
-    sum(10, 20)
-    sum_diff(8, 9)
-    sum_diff(-5, 9.5)
-
-
-def test_case_method():
-    p = Person("James", "Brown")
-    p.set_name("Tom")
-    p.get_full_name()
+if __name__ == "__main__":
+    pass

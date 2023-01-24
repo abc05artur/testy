@@ -57,5 +57,22 @@ def _get_doc_for_user_set_option() -> str:
 
 user_set_option.__doc__ = _get_doc_for_user_set_option()
 
-if __name__ == "__main__":
-    help(user_set_option)
+_internal_values = [lambda test_path: test_path.is_dir(), False]
+
+
+def set_test_exists_function(test_exists_function: Callable[[Path], bool]) -> None:
+    _internal_values[0] = test_exists_function
+
+
+def get_test_exists_function() -> Callable[[Path], bool]:
+    # todo: wrapper
+    return _internal_values[0]
+
+
+def overwrite_test_results() -> bool:
+    return _internal_values[1]
+
+
+def set_overwrite_test_results(value: bool) -> None:
+    assert isinstance(value, bool)
+    _internal_values[1] = value

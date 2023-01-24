@@ -44,6 +44,7 @@ ans_success = "success"
 ans_execution_time = "execution_time"
 ans_actual = "actual"
 ans_expected = "expected"
+ans_report = "report"
 user_options: Dict[str, Union[str, Path]] = {
     str_main_folder: Path("tests_testy"),
     str_case_folder: "case_{" + case_folder_parameter_name + "}",

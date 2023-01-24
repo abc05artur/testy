@@ -26,7 +26,7 @@ class ExceptionHandler(DefaultSingleHandler):
             actual_value = self.exception_to_dict(actual_value)
         actual_value = json.dumps(actual_value, indent=2)
         folder_path.mkdir(parents=True, exist_ok=True)
-        with open(folder_path / (var_name + ".json"), "r") as f:
+        with open(folder_path / (var_name + ".json"), "w") as f:
             f.write(expected_value)
             f.write(actual_value)
 

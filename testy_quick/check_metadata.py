@@ -1,6 +1,7 @@
 from typing import List
 
-from testy_quick.variable_handlers.to_expose import registered_handlers
+from testy_quick.variable_handlers.to_expose import registered_handlers, is_handler, is_extended_handler, \
+    condition_for_extended_handler
 from testy_quick.strings import fct_name_str, exec_time_str, save_inputs_after_execution_str, has_exception_str, \
     exception_handler_key, inputs_metadata_str, var_name_field_in_metadata, is_named_in_json, \
     handler_name_str, has_multiple_outputs, results_in_json, user_options
@@ -11,9 +12,9 @@ def get_input_metadata_errors(metadata_dict, check_handlers: bool) -> List[str]:
     if isinstance(metadata_dict, dict):
         error_list.extend(_check_non_empty_string(metadata_dict, fct_name_str))
         error_list.extend(_check_bool(metadata_dict, save_inputs_after_execution_str))
-        error_list.extend(_check_positive_float(metadata_dict, exec_time_str))
+        error_list.extend(check_positive_float(metadata_dict, exec_time_str))
         error_list.extend(_check_outputs(metadata_dict, check_handlers))
-        error_list.extend(_check_var_info(metadata_dict, inputs_metadata_str, check_handlers, True))
+        error_list.extend(check_var_info(metadata_dict, inputs_metadata_str, check_handlers, True))
     else:
         error_list.append(f"metadata type error: expected dict, got {type(metadata_dict)}")
     return error_list
@@ -41,7 +42,7 @@ def _check_outputs(metadata_dict, check_handlers):
                                     error_list.append(
                                         f"{results_in_json}: cannot have {len(metadata_dict[results_in_json])} "
                                         f"results with {has_multiple_outputs} set to False")
-                error_list.extend(_check_var_info(metadata_dict, results_in_json, check_handlers, False))
+                error_list.extend(check_var_info(metadata_dict, results_in_json, check_handlers, False))
 
         else:
             error_list.append(
@@ -52,7 +53,7 @@ def _check_outputs(metadata_dict, check_handlers):
     return error_list
 
 
-def _check_var_info(metadata_dict, field_name, check_handlers, is_input):
+def check_var_info(metadata_dict, field_name, check_handlers, is_input):
     error_list = list()
     if field_name in metadata_dict:
         error_list.extend(_check_var_list(check_handlers, metadata_dict[field_name], is_input, f"{field_name}: "))
@@ -112,7 +113,7 @@ def _check_var_list(check_handlers, metadata_list, is_input, prefix=""):
     return error_list
 
 
-def _check_positive_float(metadata_dict, field_name, suffix=""):
+def check_positive_float(metadata_dict, field_name, suffix=""):
     error_list = list()
     if field_name in metadata_dict:
         if isinstance(metadata_dict[field_name], float):
@@ -130,15 +131,20 @@ def _check_positive_float(metadata_dict, field_name, suffix=""):
 def _check_non_empty_string(metadata_dict, field_name, suffix="", check_handler=False):
     error_list = list()
     if field_name in metadata_dict:
-        if isinstance(metadata_dict[field_name], str):
-            if len(metadata_dict[field_name]) > 0:
+        value = metadata_dict[field_name]
+        if isinstance(value, str):
+            if len(value) > 0:
                 if check_handler:
-                    if metadata_dict[field_name] not in registered_handlers:
-                        error_list.append(f"{suffix}{field_name}: {metadata_dict[field_name]} missing")
+                    if not is_handler(value):
+                        if is_extended_handler(value):
+                            error_list.append(f"{suffix}{field_name}: handler '{value}' missing, but defined. "
+                                              f"Install {condition_for_extended_handler(value)} to have access to it.")
+                        else:
+                            error_list.append(f"{suffix}{field_name}: handler '{value}' missing")
             else:
                 error_list.append(f"{suffix}{field_name}: string should not be empty")
         else:
-            error_list.append(f"{suffix}{field_name}: wrong type, expected str, got {type(metadata_dict[field_name])}")
+            error_list.append(f"{suffix}{field_name}: wrong type, expected str, got {type(value)}")
     else:
         error_list.append(f"{suffix}{field_name}: key missing")
     return error_list

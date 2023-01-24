@@ -16,7 +16,22 @@ def delete_f(foler_path: Union[Path, str]):
     #     raise Exception("No such path I guess")
 
 
-temp_data_path = Path("temp_data")
+temp_data_path = Path("../../temp_data")
+temp_run_path = Path("../../temp_run")
+
+
+def reset_data():
+    delete_f(temp_data_path)
+
+
+def reset_run():
+    delete_f(temp_run_path)
+
+
+def reset_all():
+    reset_data()
+    reset_run()
+
 
 if __name__ == "__main__":
     p = Path("..") / "fff/t4/case_0"

@@ -1,4 +1,6 @@
 from inspect import getfullargspec
+from logging import Logger
+from pathlib import Path
 from typing import Callable, List, Iterable, Any, Dict, Tuple, Union
 
 from testy_quick.strings import user_options, str_unnnamed_args, case_unnamed_parametr_name, var_name_field_in_metadata, \
@@ -61,6 +63,21 @@ def split_args(vars_data: Dict[str, Any], vars_json_dict: List[Dict[str, Any]]) 
     return tuple(args), kwargs
 
 
+def split_method_args(vars_data: Dict[str, Any], vars_json_dict: List[Dict[str, Any]], method_name) -> Tuple[
+    Callable, Tuple, Dict[str, Any]]:
+    check_var_data(vars_data, vars_json_dict)
+    args = list()
+    kwargs = dict()
+    p = vars_data[vars_json_dict[0][var_name_field_in_metadata]]
+    fct = getattr(p, method_name)
+    for var_d in vars_json_dict[1:]:
+        if var_d[is_named_in_json]:
+            args.append(vars_data[var_d[var_name_field_in_metadata]])
+        else:
+            kwargs[var_d[var_name_field_in_metadata]] = vars_data[var_d[var_name_field_in_metadata]]
+    return fct, tuple(args), kwargs
+
+
 def is_ok(detail_dict: Dict[str, Tuple[bool, Union[bool, BaseException]]], raise_exc=True):
     for var_name, (successful_execution, successful_comparison) in detail_dict.items():
         if not successful_execution:
@@ -70,3 +87,27 @@ def is_ok(detail_dict: Dict[str, Tuple[bool, Union[bool, BaseException]]], raise
         if not successful_comparison:
             return False
     return True
+
+
+def seconds_to_string(time_in_s: float) -> str:
+    ans = ""
+    remaining_time = time_in_s
+    if time_in_s >= 3600:
+        nb_unit = int(remaining_time / 3600)
+        remaining_time -= nb_unit * 3600
+        ans += f"{nb_unit}h "
+    if time_in_s >= 60:
+        nb_unit = int(remaining_time / 60)
+        remaining_time -= nb_unit * 60
+        ans += f"{nb_unit}m "
+    if time_in_s >= 1:
+        nb_unit = int(remaining_time)
+        remaining_time -= nb_unit
+        ans += f"{nb_unit}s "
+    ans += f"{remaining_time * 1000}ms"
+    return ans
+
+
+def path_to_str(path: Union[Path, str]) -> str:
+    p = Path("test") / path
+    return "__".join(p.parts)

@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Union, List, Any, Dict, Callable, Iterable, Tuple
 
+from .user_string import get_test_exists_function
 from .variable_handlers import get_default_handler_for_var, get_handler
 from testy_quick.low_level import TestyError, check_var_data
 from testy_quick.strings import str_main_folder, str_case_folder, case_folder_parameter_name, \
@@ -192,7 +193,7 @@ def get_outputs_metadata(
 
 def read_vars(
         path: Path,
-        vars_json_dict: List[Dict[str, Union[str, bool]]]
+        vars_json_dict: List[Dict[str, Union[str, bool]]],
 ) -> Dict[str, Any]:
     handler_grouping = _get_handler_grouping(vars_json_dict)
 
@@ -290,7 +291,6 @@ def read_single_var(
     var_value = handler.read([name], path)
     return var_value
 
-
 # def read_multi_outputs(
 #         path: Path,
 #         inputs_json_dict: List[Dict[str, Union[str, bool]]],
@@ -313,13 +313,3 @@ def read_single_var(
 #         for k, nb in args_d.items():
 #             args[nb] = values_d[k]
 #     return tuple(args)
-
-
-def _test_exists(test_path: Path) -> bool:
-    return test_path.is_dir()
-
-
-def get_test_exists_function() -> Callable[[Path], bool]:
-    # todo: option for user to set
-    # todo: wrapper
-    return _test_exists

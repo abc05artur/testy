@@ -1,7 +1,6 @@
-# aliases may create confusion in the user docstrings, try to avoid them
-# from .end_functions import create_test_case as user_f1
+from .end_functions import create_test_case, run_test_case_unsafe as run_test_case, \
+    run_test_case_method_unsafe as run_test_case_method, create_tests_here, get_test_functions
+from .user_string import user_set_option, set_overwrite_test_results, set_test_exists_function
+from .variable_handlers import register_handler, SingleHandler, MultiHandler
 
-# from .variable_handlers.to_expose import register_handler
-# from .variable_handlers.base_handler import SingleHandler
-
-__version__ = "0.0.0"
+__version__ = "0.1.0"
