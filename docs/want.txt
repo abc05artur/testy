@@ -1,0 +1,110 @@
+options:
+    used inputs
+logs:
+    execution time: 3s 5.7ms
+    expected time: 2m 6s
+    -one of:
+    exec successful
+    exec failed (as expected)
+    Error: execution failed
+        we log error;
+    Error: successful execution when expected failure
+
+    -optional
+    inputs after execution are OK
+    Error: inputs after execution failed for
+        -inp 1
+        -x
+    inputs after execution not checked
+
+    -optional
+    same error
+    Error:different error
+
+    outputs are OK
+    Error:number of outputs differ:
+        - expected 3
+        - got 4
+    same number of outputs: 3
+    outputs are OK
+    Error: outputs are different for:
+        - output 1
+        - output 3
+    conclusion: test successful
+    conclusion: test failed
+
+
+json logs
+{
+    "success":True,
+    "execution_time":{
+        "expected":435,
+        "actual":345,
+    },
+    "inputs_checked":true,
+    "is_exception":false,
+    "number_of_outputs":3,
+}
+{
+    "success":False,
+    "execution_time":{
+        "expected":435,
+        "actual":345,
+    },
+    "execution_error":{
+        "expected":false,
+        "actual":true,
+    },
+    "inputs_checked":true,
+    "is_exception":false,
+    "number_of_outputs":3,
+}
+
+CRITICAL = 50
+FATAL = CRITICAL
+ERROR = 40
+WARNING = 30
+WARN = WARNING
+INFO = 20
+DEBUG = 10
+NOTSET = 0
+
+
+['__annotations__', '__builtins__',
+'__call__', '__class__', '__closure__', '__code__', '__defaults__',
+'__delattr__', '__dict__',
+'__dir__', '__doc__', '__eq__', '__format__',
+'__ge__', '__get__', '__getattribute__', '__globals__',
+'__gt__', '__hash__', '__init__', '__init_subclass__', '__kwdefaults__',
+'__le__', '__lt__', '__module__', '__name__',
+'__ne__', '__new__', '__qualname__',
+'__reduce__', '__reduce_ex__', '__repr__',
+'__setattr__', '__sizeof__', '__str__', '__subclasshook__']
+dir(l[1])
+[
+'__call__', '__class__',
+'__delattr__',
+'__dir__', '__doc__', '__eq__', '__format__', '__func__',
+'__ge__', '__get__', '__getattribute__',
+'__gt__', '__hash__', '__init__', '__init_subclass__',
+'__le__', '__lt__',
+'__ne__', '__new__',
+'__reduce__', '__reduce_ex__', '__repr__', '__self__',
+'__setattr__', '__sizeof__', '__str__', '__subclasshook__']
+
+
+reasons to fail
+- inputs after execution
+    - fail to read
+    - fail to write
+    - fail to compare
+    - not the same
+- execution
+    - not same execution
+or
+- outputs
+    - not same nb of outputs
+    - fail to write initial
+    - fail to write
+    - fail to compare
+    - not the same
