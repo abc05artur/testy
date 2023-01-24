@@ -1,0 +1,9 @@
+- check inputs
+    - check write-read-compare
+    - check no modif
+    - check write-read-compare for outputs
+- read-write remote debug or prod
+- test run options
+    - compare direct
+    - write only diff
+- class methods
