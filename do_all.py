@@ -4,6 +4,8 @@ import shutil
 from git import Repo
 
 
+# python run do_all.py
+
 def f1(data):
     i = 0
     for l in data:
